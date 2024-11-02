@@ -61,7 +61,7 @@ public class GridPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
 
         int width = getWidth();
-        int height = getHeight()-20;
+        int height = getHeight();
         gridWidth = (width/CELL_SIZE) -1;
         gridHeight = (height/CELL_SIZE) -1;
 
@@ -119,5 +119,44 @@ public class GridPanel extends JPanel {
     public int getCell(int x, int y){
         if (x < 0 || y <0 || x>= gridWidth || y>= gridHeight) return -1;
         return states[y][x];
+    }
+
+    public int getAdjacent(int x, int y){
+        int living =0;
+        for(int i = x-1; i<= x+1; i++){
+            for (int j = y-1; j<= y+1; j++){
+                if(x ==i && y == j) continue;
+                int state = getCell(i, j);
+                if(state == 1) living++;
+            }
+        }
+        return living;
+    }
+
+
+    public void iterate(){
+        int [][] nextStates = new int[gridHeight][gridWidth];
+
+        for (int i =0; i < gridWidth; i++){
+            for (int j = 0; j< gridHeight; j++){
+                int state = getCell(i, j);
+                int adjLiving = getAdjacent(i, j);
+
+                if(state == 0) {
+                    if (adjLiving == 3) nextStates[j][i] = 1;
+                    else nextStates[j][i] = 0;
+                }
+                else{  // is living
+                            if(adjLiving < 2 || adjLiving > 3) nextStates[j][i] =0;
+                            else nextStates[j][i]=1;
+                        }
+                    }
+                }
+        
+        for (int i = 0; i < gridWidth; i++) {
+            for (int j = 0; j < gridHeight; j++) {
+                states[j][i] = nextStates[j][i];
+            }
+        }
     }
 }

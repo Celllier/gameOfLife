@@ -9,10 +9,11 @@ public class Frame extends JFrame{
     private int width = 800;
     private int length = 800;
     private JButton startButton;
+    private GridPanel gridPanel;
 
     public Frame(){
         super("Game of life");
-        var gridPanel = new GridPanel();
+        gridPanel = new GridPanel();
         gridPanel.setLayout(null);
         startButton = createButton();
         gridPanel.add(startButton);
@@ -51,11 +52,26 @@ public class Frame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("button clicked");
-                //run game here
+                run();
             }
         });
 
 
         return button;
     }
+
+    private void run(){
+        Timer timer = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Updating grid in timer");
+                gridPanel.iterate();
+                gridPanel.update();
+            }
+        });
+        timer.start();
+
+    }
+
+
 }
