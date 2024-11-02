@@ -2,12 +2,21 @@ package com.Celllier.hero;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GridPanel extends JPanel {
+
+    public interface GridListener{
+        void gridReady();
+        void click(int x, int y, int button);
+    }
+
+    private GridListener gridListener;
 
     private static int CELL_SIZE = 30;
 
@@ -20,8 +29,29 @@ public class GridPanel extends JPanel {
 
     public GridPanel(){
         setBackground(Color.DARK_GRAY.darker());
-
         addState(0, Color.ORANGE);
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int gridx = (e.getX() - leftMargin) / CELL_SIZE;
+                int gridy = (e.getY() - topMargin) / CELL_SIZE;
+                System.out.println("X:" + gridx +" Y:" + gridy);
+
+                if(gridListener != null){
+                    gridListener.click(gridx, gridy, e.getButton());
+                }
+                super.mouseClicked(e);
+            }
+        });
+    }
+
+    void setGridListener(GridListener gridListener){
+        this.gridListener = gridListener;
+    }
+
+    public void update(){
+        repaint();
     }
 
     @Override
@@ -31,7 +61,7 @@ public class GridPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
 
         int width = getWidth();
-        int height = getHeight();
+        int height = getHeight()-20;
         gridWidth = (width/CELL_SIZE) -1;
         gridHeight = (height/CELL_SIZE) -1;
 
@@ -65,6 +95,10 @@ public class GridPanel extends JPanel {
         }
         states = new Integer[gridHeight][gridWidth];
         Arrays.stream(states).forEach(a -> Arrays.fill(a, 0));
+
+        if (gridListener != null){
+            gridListener.gridReady();
+        }
     }
 
     public void addState(Integer state, Color background){
@@ -75,5 +109,15 @@ public class GridPanel extends JPanel {
         g.dispose();
 
         statesMap.put(state, bi);
+    }
+
+    public void setCell(int state, int x, int y){
+        if (x < 0 || y <0 || x>= gridWidth || y>= gridHeight) return;
+        states[y][x] = state;
+    }
+
+    public int getCell(int x, int y){
+        if (x < 0 || y <0 || x>= gridWidth || y>= gridHeight) return -1;
+        return states[y][x];
     }
 }
